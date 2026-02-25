@@ -13,6 +13,9 @@ import { removeBackgroundFields } from './actions/removeBackground';
 import { enhancePromptFields } from './actions/enhancePrompt';
 import { virtualTryOnFields } from './actions/virtualTryOn';
 import { chatFields } from './actions/chat';
+import { thinkingFields } from './actions/thinking';
+import { embeddingsFields } from './actions/embeddings';
+import { videoFields } from './actions/video';
 import { FALLBACK_MODELS, ModelCapability } from '../../shared/constants';
 
 /**
@@ -103,7 +106,7 @@ export class DeerApi implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'AI-powered e-commerce image generation, background removal, prompt enhancement, and virtual try-on',
+		description: 'AI-powered chat, thinking, image/video generation, embeddings, background removal, prompt enhancement, and virtual try-on',
 		defaults: { name: 'DeerAPI Plus' },
 		inputs: ['main'],
 		outputs: ['main'],
@@ -122,8 +125,11 @@ export class DeerApi implements INodeType {
 				noDataExpression: true,
 				options: [
 					{ name: 'Chat', value: 'chat', description: 'Text generation with AI models' },
+					{ name: 'Embeddings', value: 'embeddings', description: 'Generate vector embeddings from text' },
 					{ name: 'Image', value: 'image', description: 'Generate or process images' },
 					{ name: 'Prompt', value: 'prompt', description: 'Enhance prompts for image generation' },
+					{ name: 'Thinking', value: 'thinking', description: 'Deep reasoning with thinking models' },
+					{ name: 'Video', value: 'video', description: 'Generate and manage AI videos' },
 					{ name: 'Virtual Try-On', value: 'virtualTryOn', description: 'AI virtual clothing try-on' },
 				],
 				default: 'chat',
@@ -173,11 +179,50 @@ export class DeerApi implements INodeType {
 				],
 				default: 'generate',
 			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['thinking'] } },
+				options: [
+					{ name: 'Generate', value: 'generate', description: 'Deep reasoning with a thinking model', action: 'Generate thinking response' },
+				],
+				default: 'generate',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['embeddings'] } },
+				options: [
+					{ name: 'Generate', value: 'generate', description: 'Generate vector embeddings from text', action: 'Generate embeddings' },
+				],
+				default: 'generate',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['video'] } },
+				options: [
+					{ name: 'Create', value: 'create', description: 'Submit a video generation task', action: 'Create video' },
+					{ name: 'Retrieve', value: 'retrieve', description: 'Check video generation status', action: 'Retrieve video status' },
+					{ name: 'Download', value: 'download', description: 'Download a completed video', action: 'Download video' },
+					{ name: 'List', value: 'list', description: 'List video generation tasks', action: 'List video tasks' },
+				],
+				default: 'create',
+			},
 			...chatFields,
 			...generateImageFields,
 			...removeBackgroundFields,
 			...enhancePromptFields,
 			...virtualTryOnFields,
+			...thinkingFields,
+			...embeddingsFields,
+			...videoFields,
 		],
 	};
 
@@ -188,6 +233,15 @@ export class DeerApi implements INodeType {
 			},
 			async getTextModels(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				return fetchModels(this, 'text');
+			},
+			async getThinkingModels(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				return fetchModels(this, 'thinking');
+			},
+			async getEmbeddingModels(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				return fetchModels(this, 'embedding');
+			},
+			async getVideoModels(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				return fetchModels(this, 'video');
 			},
 		},
 	};

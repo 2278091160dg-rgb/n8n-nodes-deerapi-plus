@@ -20,12 +20,30 @@ jest.mock('../../nodes/DeerApi/actions/chat', () => ({
 	chatFields: [],
 	executeChat: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'chat' }, pairedItem: { item: 0 } }]),
 }));
+jest.mock('../../nodes/DeerApi/actions/thinking', () => ({
+	thinkingFields: [],
+	executeThinking: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'thinking' }, pairedItem: { item: 0 } }]),
+}));
+jest.mock('../../nodes/DeerApi/actions/embeddings', () => ({
+	embeddingsFields: [],
+	executeEmbeddings: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'embeddings' }, pairedItem: { item: 0 } }]),
+}));
+jest.mock('../../nodes/DeerApi/actions/video', () => ({
+	videoFields: [],
+	executeVideoCreate: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'video.create' }, pairedItem: { item: 0 } }]),
+	executeVideoRetrieve: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'video.retrieve' }, pairedItem: { item: 0 } }]),
+	executeVideoDownload: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'video.download' }, pairedItem: { item: 0 } }]),
+	executeVideoList: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'video.list' }, pairedItem: { item: 0 } }]),
+}));
 
 import { executeGenerateImage } from '../../nodes/DeerApi/actions/generateImage';
 import { executeRemoveBackground } from '../../nodes/DeerApi/actions/removeBackground';
 import { executeEnhancePrompt } from '../../nodes/DeerApi/actions/enhancePrompt';
 import { executeVirtualTryOn } from '../../nodes/DeerApi/actions/virtualTryOn';
 import { executeChat } from '../../nodes/DeerApi/actions/chat';
+import { executeThinking } from '../../nodes/DeerApi/actions/thinking';
+import { executeEmbeddings } from '../../nodes/DeerApi/actions/embeddings';
+import { executeVideoCreate, executeVideoRetrieve, executeVideoDownload, executeVideoList } from '../../nodes/DeerApi/actions/video';
 
 describe('router', () => {
 	let mockContext: any;
@@ -94,6 +112,72 @@ describe('router', () => {
 
 		expect(result[0][0].json.operation).toBe('chat');
 		expect(executeChat).toHaveBeenCalled();
+	});
+
+	it('should route to thinking', async () => {
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('thinking')
+			.mockReturnValueOnce('generate');
+
+		const result = await router.call(mockContext);
+
+		expect(result[0][0].json.operation).toBe('thinking');
+		expect(executeThinking).toHaveBeenCalled();
+	});
+
+	it('should route to embeddings', async () => {
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('embeddings')
+			.mockReturnValueOnce('generate');
+
+		const result = await router.call(mockContext);
+
+		expect(result[0][0].json.operation).toBe('embeddings');
+		expect(executeEmbeddings).toHaveBeenCalled();
+	});
+
+	it('should route to video create', async () => {
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('video')
+			.mockReturnValueOnce('create');
+
+		const result = await router.call(mockContext);
+
+		expect(result[0][0].json.operation).toBe('video.create');
+		expect(executeVideoCreate).toHaveBeenCalled();
+	});
+
+	it('should route to video retrieve', async () => {
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('video')
+			.mockReturnValueOnce('retrieve');
+
+		const result = await router.call(mockContext);
+
+		expect(result[0][0].json.operation).toBe('video.retrieve');
+		expect(executeVideoRetrieve).toHaveBeenCalled();
+	});
+
+	it('should route to video download', async () => {
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('video')
+			.mockReturnValueOnce('download');
+
+		const result = await router.call(mockContext);
+
+		expect(result[0][0].json.operation).toBe('video.download');
+		expect(executeVideoDownload).toHaveBeenCalled();
+	});
+
+	it('should route to video list', async () => {
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('video')
+			.mockReturnValueOnce('list');
+
+		const result = await router.call(mockContext);
+
+		expect(result[0][0].json.operation).toBe('video.list');
+		expect(executeVideoList).toHaveBeenCalled();
 	});
 
 	it('should throw on unknown resource/operation', async () => {

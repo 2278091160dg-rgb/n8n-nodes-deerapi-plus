@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-deerapi-plus",
   "version": "0.5.0",
-  "description": "n8n community node for DeerAPI — AI text generation, image generation, background removal, prompt enhancement, and virtual try-on. Supports 20+ models with dynamic loading.",
+  "description": "n8n community node for DeerAPI — AI text/image/video generation, deep reasoning, embeddings, background removal, prompt enhancement, and virtual try-on. Supports 20+ models with dynamic loading.",
   "license": "MIT",
   "homepage": "https://github.com/nicekate/n8n-nodes-deerapi-plus",
   "repository": {
@@ -16,6 +16,10 @@
     "ai",
     "image-generation",
     "text-generation",
+    "video-generation",
+    "thinking",
+    "deep-reasoning",
+    "embeddings",
     "openai-compatible",
     "gemini",
     "sora",

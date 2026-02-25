@@ -1,8 +1,8 @@
 # n8n-nodes-deerapi-plus
 
-n8n community node for [DeerAPI](https://deerapi.com) — AI text generation, image generation, background removal, prompt enhancement, and virtual try-on.
+n8n community node for [DeerAPI](https://deerapi.com) — AI text generation, image generation, video generation, deep reasoning, vector embeddings, background removal, prompt enhancement, and virtual try-on.
 
-Supports 20+ models (Gemini, GPT-4o, Claude, DeepSeek, Doubao) with dynamic model loading.
+Supports 20+ models (Gemini, GPT-4o, Claude, DeepSeek, Doubao, Sora) with dynamic model loading.
 
 ## Installation
 
@@ -36,6 +36,12 @@ Note: This node uses credential type `deerApiPlusApi`. If you also have `n8n-nod
 | Image | Remove Background | Remove or replace image backgrounds (transparent/white/custom) |
 | Prompt | Enhance | E-commerce product image prompt optimization with structured JSON output |
 | Virtual Try-On | Generate | AI virtual clothing try-on (person + garment compositing) |
+| Video | Create | Generate videos from text prompts with async polling |
+| Video | Retrieve | Check video generation status and get download URL |
+| Video | Download | Download generated video as binary (video/mp4) |
+| Video | List | List your generated videos with pagination |
+| Thinking | Generate | Deep reasoning with configurable thinking budget (1–10000 tokens) |
+| Embeddings | Generate | Text-to-vector embedding generation for semantic search |
 
 ## Features
 
@@ -54,13 +60,16 @@ Note: This node uses credential type `deerApiPlusApi`. If you also have `n8n-nod
 |---------|:-----------:|:-----------:|:-----------:|
 | Chat text generation | ✅ | ✅ | ✅ |
 | Image generation | ✅ | ✅ | ✅ |
+| Video generation | ✅ | ❌ | ❌ |
+| Deep reasoning (thinking) | ✅ | ❌ | ❌ |
+| Embeddings | ✅ | ❌ | ❌ |
 | Prompt enhancement | ✅ (e-commerce) | ❌ | ❌ |
 | Background removal | ✅ | ❌ | ❌ |
 | Virtual try-on | ✅ | ❌ | ❌ |
 | Dynamic model loading | ✅ | ❌ | ❌ |
 | Retry + circuit breaker | ✅ | ❌ | Partial |
 | Error sanitization | ✅ | ❌ | ❌ |
-| Test coverage | 96%+ | 0% | 0% |
+| Test coverage | 174 tests | 0% | 0% |
 | AI Agent compatible | ✅ | ❌ | ❌ |
 
 ## Development

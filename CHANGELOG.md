@@ -9,12 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Chat text generation** — New resource with full model support (Gemini, GPT-4o, Claude, DeepSeek)
-- **Dynamic model loading** — Models fetched from `/v1/models` API with local fallback
+- **Thinking (deep reasoning)** — Extended thinking with budget_tokens control, supports `thinking` and `reasoning_content` provider formats, 120s timeout
+- **Embeddings** — Vector embedding generation via `/v1/embeddings`, returns embedding array + dimensions
+- **Video generation** — Full lifecycle: create (async polling 40×15s), retrieve, download (binary mp4), list
+- **Dynamic model loading** — Models fetched from `/v1/models` API with local fallback for all resources
 - **Aspect ratio selector** — 10 presets (1:1, 16:9, 9:16, 4:5, etc.) for image generation
 - **Resolution selector** — 1K/2K output resolution
 - **Mode selector foundation** — Cost/speed tier metadata on all models
 - **Safe response parsing** — `safeExtractChatContent()` and `extractImageUrl()` utilities
-- **Endpoint mapping** — Model ID → API endpoint routing (foundation for Phase 2)
+- **Endpoint mapping** — Model ID → API endpoint routing
 - **AI Agent compatibility** — `usableAsTool: true` for n8n AI Agent integration
 
 ### Fixed
@@ -27,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - All model dropdowns now use `loadOptionsMethod` for dynamic loading
 - All action files use centralized `safeExtractChatContent` and `extractImageUrl`
+- 174 tests, 15 test suites, zero TypeScript errors
 
 ## [0.4.0] - 2026-02-24
 

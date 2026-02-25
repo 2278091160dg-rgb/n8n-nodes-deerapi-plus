@@ -32,15 +32,11 @@ export const enhancePromptFields: INodeProperties[] = [
 		displayName: 'Model',
 		name: 'model',
 		type: 'options',
-		options: [
-			{ name: 'Gemini 2.5 Flash', value: 'gemini-2.5-flash' },
-			{ name: 'GPT-4o', value: 'gpt-4o' },
-			{ name: 'Custom Model', value: '__custom' },
-		],
+		typeOptions: { loadOptionsMethod: 'getTextModels' },
 		default: 'gemini-2.5-flash',
 		required: true,
 		displayOptions: { show: { resource: ['prompt'], operation: ['enhance'] } },
-		description: 'The model to use for prompt enhancement',
+		description: 'The model to use for prompt enhancement. Loaded dynamically from DeerAPI.',
 	},
 	{
 		displayName: 'Custom Model Name',

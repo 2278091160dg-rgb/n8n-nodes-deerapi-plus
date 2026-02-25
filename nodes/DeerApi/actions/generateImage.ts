@@ -10,15 +10,11 @@ export const generateImageFields: INodeProperties[] = [
 		displayName: 'Model',
 		name: 'model',
 		type: 'options',
-		options: [
-			{ name: 'Gemini 2.5 Flash Image', value: 'gemini-2.5-flash-image' },
-			{ name: 'Gemini 3 Pro Image Preview', value: 'gemini-3-pro-image-preview' },
-			{ name: 'Custom Model', value: '__custom' },
-		],
+		typeOptions: { loadOptionsMethod: 'getImageModels' },
 		default: 'gemini-2.5-flash-image',
 		required: true,
 		displayOptions: { show: { resource: ['image'], operation: ['generate'] } },
-		description: 'The model to use for image generation',
+		description: 'The model to use for image generation. Loaded dynamically from DeerAPI.',
 	},
 	{
 		displayName: 'Custom Model Name',

@@ -12,6 +12,7 @@ import { generateImageFields } from './actions/generateImage';
 import { removeBackgroundFields } from './actions/removeBackground';
 import { enhancePromptFields } from './actions/enhancePrompt';
 import { virtualTryOnFields } from './actions/virtualTryOn';
+import { chatFields } from './actions/chat';
 import { FALLBACK_MODELS, ModelCapability } from '../../shared/constants';
 
 /**
@@ -120,11 +121,23 @@ export class DeerApi implements INodeType {
 				type: 'options',
 				noDataExpression: true,
 				options: [
+					{ name: 'Chat', value: 'chat', description: 'Text generation with AI models' },
 					{ name: 'Image', value: 'image', description: 'Generate or process images' },
 					{ name: 'Prompt', value: 'prompt', description: 'Enhance prompts for image generation' },
 					{ name: 'Virtual Try-On', value: 'virtualTryOn', description: 'AI virtual clothing try-on' },
 				],
-				default: 'image',
+				default: 'chat',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['chat'] } },
+				options: [
+					{ name: 'Generate', value: 'generate', description: 'Generate text with an AI model', action: 'Generate text' },
+				],
+				default: 'generate',
 			},
 			{
 				displayName: 'Operation',
@@ -160,6 +173,7 @@ export class DeerApi implements INodeType {
 				],
 				default: 'generate',
 			},
+			...chatFields,
 			...generateImageFields,
 			...removeBackgroundFields,
 			...enhancePromptFields,

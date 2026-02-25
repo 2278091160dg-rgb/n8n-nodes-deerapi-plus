@@ -4,6 +4,7 @@ import {
 	INodeExecutionData,
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
+import { safeExtractChatContent } from '../../../transport/response';
 
 const SYSTEM_PROMPT = `You are an expert e-commerce product image prompt engineer with deep knowledge of commercial photography, visual merchandising, and AI image generation.
 
@@ -205,7 +206,7 @@ export async function executeEnhancePrompt(
 	});
 	const processingTime = Date.now() - startTime;
 
-	const rawContent = response?.choices?.[0]?.message?.content || '';
+	const { content: rawContent } = safeExtractChatContent(response);
 
 	let enhancedPrompt = rawContent;
 	let suggestions: string[] = [];

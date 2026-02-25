@@ -4,6 +4,7 @@ import {
 	INodeExecutionData,
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
+import { safeExtractChatContent, extractImageUrl } from '../../../transport/response';
 
 export const removeBackgroundFields: INodeProperties[] = [
 	{
@@ -214,9 +215,8 @@ export async function executeRemoveBackground(
 	});
 	const processingTime = Date.now() - startTime;
 
-	const rawContent = response?.choices?.[0]?.message?.content || '';
-	const imageUrlMatch = rawContent.match(/https?:\/\/[^\s"'<>\]\)]+\.(?:png|jpg|jpeg|webp|gif)(?:\?[^\s"'<>\]\)]*)?/i);
-	const imageUrl = imageUrlMatch ? imageUrlMatch[0] : null;
+	const { content: rawContent } = safeExtractChatContent(response);
+	const imageUrl = extractImageUrl(rawContent);
 
 	const simplify = additionalOptions.simplify !== false;
 

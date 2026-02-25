@@ -3,6 +3,7 @@ import { executeGenerateImage } from './generateImage';
 import { executeRemoveBackground } from './removeBackground';
 import { executeEnhancePrompt } from './enhancePrompt';
 import { executeVirtualTryOn } from './virtualTryOn';
+import { executeChat } from './chat';
 
 export async function router(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 	const items = this.getInputData();
@@ -13,7 +14,9 @@ export async function router(this: IExecuteFunctions): Promise<INodeExecutionDat
 			const operation = this.getNodeParameter('operation', i) as string;
 			let result: INodeExecutionData[];
 
-			if (resource === 'image' && operation === 'generate') {
+			if (resource === 'chat' && operation === 'generate') {
+				result = await executeChat.call(this, i);
+			} else if (resource === 'image' && operation === 'generate') {
 				result = await executeGenerateImage.call(this, i);
 			} else if (resource === 'image' && operation === 'removeBackground') {
 				result = await executeRemoveBackground.call(this, i);

@@ -4,6 +4,7 @@ import {
 	INodeExecutionData,
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
+import { safeExtractChatContent, extractImageUrl } from '../../../transport/response';
 
 export const virtualTryOnFields: INodeProperties[] = [
 	{
@@ -180,7 +181,7 @@ export async function executeVirtualTryOn(
 					temperature,
 				} as any,
 			});
-			const enhanced = enhanceResponse?.choices?.[0]?.message?.content;
+			const enhanced = safeExtractChatContent(enhanceResponse).content;
 			if (enhanced) {
 				tryOnPrompt = enhanced;
 			}
@@ -221,9 +222,8 @@ export async function executeVirtualTryOn(
 	});
 	const processingTime = Date.now() - startTime;
 
-	const rawContent = response?.choices?.[0]?.message?.content || '';
-	const imageUrlMatch = rawContent.match(/https?:\/\/[^\s"'<>\]\)]+\.(?:png|jpg|jpeg|webp|gif)(?:\?[^\s"'<>\]\)]*)?/i);
-	const resultImageUrl = imageUrlMatch ? imageUrlMatch[0] : null;
+	const { content: rawContent } = safeExtractChatContent(response);
+	const resultImageUrl = extractImageUrl(rawContent);
 
 	const simplify = additionalOptions.simplify !== false;
 

@@ -4,6 +4,7 @@ import {
 	INodeExecutionData,
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
+import { safeExtractChatContent, extractImageUrl } from '../../../transport/response';
 
 export const generateImageFields: INodeProperties[] = [
 	{
@@ -71,12 +72,42 @@ export const generateImageFields: INodeProperties[] = [
 				description: 'Whether to return the image as a URL or download it as binary data',
 			},
 			{
+				displayName: 'Aspect Ratio',
+				name: 'aspectRatio',
+				type: 'options',
+				options: [
+					{ name: '1:1 (Square)', value: '1:1' },
+					{ name: '3:2 (Landscape)', value: '3:2' },
+					{ name: '2:3 (Portrait)', value: '2:3' },
+					{ name: '16:9 (Widescreen)', value: '16:9' },
+					{ name: '9:16 (Vertical)', value: '9:16' },
+					{ name: '3:4', value: '3:4' },
+					{ name: '4:3', value: '4:3' },
+					{ name: '4:5 (Instagram)', value: '4:5' },
+					{ name: '5:4', value: '5:4' },
+					{ name: 'Custom', value: 'custom' },
+				],
+				default: '1:1',
+				description: 'Aspect ratio for the generated image',
+			},
+			{
+				displayName: 'Resolution',
+				name: 'resolution',
+				type: 'options',
+				options: [
+					{ name: '1K (1024px)', value: '1k' },
+					{ name: '2K (2048px)', value: '2k' },
+				],
+				default: '1k',
+				description: 'Resolution of the longer side',
+			},
+			{
 				displayName: 'Width',
 				name: 'width',
 				type: 'number',
 				default: 1024,
 				typeOptions: { minValue: 256, maxValue: 2048 },
-				description: 'Image width in pixels',
+				description: 'Image width in pixels (used when Aspect Ratio is Custom)',
 			},
 			{
 				displayName: 'Height',
@@ -84,7 +115,7 @@ export const generateImageFields: INodeProperties[] = [
 				type: 'number',
 				default: 1024,
 				typeOptions: { minValue: 256, maxValue: 2048 },
-				description: 'Image height in pixels',
+				description: 'Image height in pixels (used when Aspect Ratio is Custom)',
 			},
 			{
 				displayName: 'Number of Images',
@@ -147,6 +178,36 @@ export const generateImageFields: INodeProperties[] = [
 
 const ENHANCE_SYSTEM_PROMPT = 'You are an expert e-commerce product image prompt engineer. Enhance the user\'s prompt to be more detailed and specific for AI image generation. Focus on: lighting, composition, background, product placement, and commercial appeal. Output only the enhanced prompt, nothing else.';
 
+const ASPECT_RATIO_MAP: Record<string, [number, number]> = {
+	'1:1': [1, 1],
+	'3:2': [3, 2],
+	'2:3': [2, 3],
+	'16:9': [16, 9],
+	'9:16': [9, 16],
+	'3:4': [3, 4],
+	'4:3': [4, 3],
+	'4:5': [4, 5],
+	'5:4': [5, 4],
+};
+
+function resolveImageDimensions(options: {
+	aspectRatio?: string;
+	resolution?: string;
+	width?: number;
+	height?: number;
+}): { width: number; height: number } {
+	const ratio = options.aspectRatio || '1:1';
+	if (ratio === 'custom') {
+		return { width: options.width || 1024, height: options.height || 1024 };
+	}
+	const basePx = options.resolution === '2k' ? 2048 : 1024;
+	const [rw, rh] = ASPECT_RATIO_MAP[ratio] || [1, 1];
+	if (rw >= rh) {
+		return { width: basePx, height: Math.round(basePx * rh / rw) };
+	}
+	return { width: Math.round(basePx * rw / rh), height: basePx };
+}
+
 export async function executeGenerateImage(
 	this: IExecuteFunctions,
 	index: number,
@@ -160,6 +221,8 @@ export async function executeGenerateImage(
 	const additionalOptions = this.getNodeParameter('additionalOptions', index) as {
 		negativePrompt?: string;
 		outputType?: string;
+		aspectRatio?: string;
+		resolution?: string;
 		width?: number;
 		height?: number;
 		numberOfImages?: number;
@@ -192,7 +255,7 @@ export async function executeGenerateImage(
 					temperature,
 				} as any,
 			});
-			const enhanced = enhanceResponse?.choices?.[0]?.message?.content;
+			const enhanced = safeExtractChatContent(enhanceResponse).content;
 			if (enhanced) {
 				finalPrompt = enhanced;
 			}
@@ -202,10 +265,20 @@ export async function executeGenerateImage(
 	}
 
 	const startTime = Date.now();
+
+	// Resolve dimensions from aspect ratio + resolution
+	const { width, height } = resolveImageDimensions(additionalOptions);
+
+	// Build size hint for the prompt
+	const sizeHint = `Image size: ${width}x${height}.`;
+	const negativeHint = additionalOptions.negativePrompt
+		? ` Avoid: ${additionalOptions.negativePrompt}.`
+		: '';
+
 	const genBody: any = {
 		model,
 		messages: [
-			{ role: 'user', content: `Generate an image: ${finalPrompt}` },
+			{ role: 'user', content: `Generate an image: ${finalPrompt} ${sizeHint}${negativeHint}` },
 		],
 	};
 	if (additionalOptions.extraBodyFields) {
@@ -226,9 +299,8 @@ export async function executeGenerateImage(
 	});
 	const processingTime = Date.now() - startTime;
 
-	const rawContent = response?.choices?.[0]?.message?.content || '';
-	const imageUrlMatch = rawContent.match(/https?:\/\/[^\s"'<>\]\)]+\.(?:png|jpg|jpeg|webp|gif)(?:\?[^\s"'<>\]\)]*)?/i);
-	const imageUrl = imageUrlMatch ? imageUrlMatch[0] : null;
+	const { content: rawContent } = safeExtractChatContent(response);
+	const imageUrl = extractImageUrl(rawContent);
 
 	const simplify = additionalOptions.simplify !== false;
 

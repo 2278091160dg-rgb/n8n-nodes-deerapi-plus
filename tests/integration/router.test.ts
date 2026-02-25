@@ -16,11 +16,16 @@ jest.mock('../../nodes/DeerApi/actions/virtualTryOn', () => ({
 	virtualTryOnFields: [],
 	executeVirtualTryOn: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'virtualTryOn' }, pairedItem: { item: 0 } }]),
 }));
+jest.mock('../../nodes/DeerApi/actions/chat', () => ({
+	chatFields: [],
+	executeChat: jest.fn().mockResolvedValue([{ json: { success: true, operation: 'chat' }, pairedItem: { item: 0 } }]),
+}));
 
 import { executeGenerateImage } from '../../nodes/DeerApi/actions/generateImage';
 import { executeRemoveBackground } from '../../nodes/DeerApi/actions/removeBackground';
 import { executeEnhancePrompt } from '../../nodes/DeerApi/actions/enhancePrompt';
 import { executeVirtualTryOn } from '../../nodes/DeerApi/actions/virtualTryOn';
+import { executeChat } from '../../nodes/DeerApi/actions/chat';
 
 describe('router', () => {
 	let mockContext: any;
@@ -78,6 +83,17 @@ describe('router', () => {
 
 		expect(result[0][0].json.operation).toBe('virtualTryOn');
 		expect(executeVirtualTryOn).toHaveBeenCalled();
+	});
+
+	it('should route to chat', async () => {
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('chat')
+			.mockReturnValueOnce('generate');
+
+		const result = await router.call(mockContext);
+
+		expect(result[0][0].json.operation).toBe('chat');
+		expect(executeChat).toHaveBeenCalled();
 	});
 
 	it('should throw on unknown resource/operation', async () => {

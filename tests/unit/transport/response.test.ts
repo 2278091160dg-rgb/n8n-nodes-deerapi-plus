@@ -1,4 +1,4 @@
-import { parseResponse } from '../../../transport/response';
+import { parseResponse, safeExtractChatContent, extractImageUrl } from '../../../transport/response';
 
 describe('parseResponse', () => {
 	const mockContext = {
@@ -96,5 +96,77 @@ describe('parseResponse', () => {
 		const response = {};
 		const result = await parseResponse(mockContext, response, 0);
 		expect(result).toEqual({ json: {} });
+	});
+});
+
+describe('safeExtractChatContent', () => {
+	it('should extract content from valid response', () => {
+		const response = {
+			choices: [{ message: { content: 'Hello' }, finish_reason: 'stop' }],
+			usage: { prompt_tokens: 5, total_tokens: 8 },
+		};
+		const result = safeExtractChatContent(response);
+		expect(result.content).toBe('Hello');
+		expect(result.finishReason).toBe('stop');
+		expect(result.usage).toEqual({ prompt_tokens: 5, total_tokens: 8 });
+	});
+
+	it('should handle null response', () => {
+		expect(safeExtractChatContent(null)).toEqual({ content: '', finishReason: '', usage: {} });
+	});
+
+	it('should handle undefined response', () => {
+		expect(safeExtractChatContent(undefined)).toEqual({ content: '', finishReason: '', usage: {} });
+	});
+
+	it('should handle empty choices array', () => {
+		expect(safeExtractChatContent({ choices: [] })).toEqual({ content: '', finishReason: '', usage: {} });
+	});
+
+	it('should handle missing message', () => {
+		expect(safeExtractChatContent({ choices: [{}] })).toEqual({ content: '', finishReason: '', usage: {} });
+	});
+
+	it('should handle non-string content', () => {
+		const response = { choices: [{ message: { content: 123 } }] };
+		expect(safeExtractChatContent(response).content).toBe('');
+	});
+
+	it('should handle missing usage', () => {
+		const response = { choices: [{ message: { content: 'Hi' }, finish_reason: 'stop' }] };
+		expect(safeExtractChatContent(response).usage).toEqual({});
+	});
+});
+
+describe('extractImageUrl', () => {
+	it('should extract plain URL', () => {
+		const content = 'Here is your image: https://example.com/image.png';
+		expect(extractImageUrl(content)).toBe('https://example.com/image.png');
+	});
+
+	it('should extract URL with query params', () => {
+		const content = 'https://cdn.example.com/img.jpg?token=abc&size=large';
+		expect(extractImageUrl(content)).toBe('https://cdn.example.com/img.jpg?token=abc&size=large');
+	});
+
+	it('should extract URL from Markdown without capturing )', () => {
+		const content = '![alt](https://example.com/photo.png)';
+		expect(extractImageUrl(content)).toBe('https://example.com/photo.png');
+	});
+
+	it('should extract URL from Markdown with ] without capturing it', () => {
+		const content = '[link](https://example.com/photo.webp)';
+		expect(extractImageUrl(content)).toBe('https://example.com/photo.webp');
+	});
+
+	it('should return null when no image URL found', () => {
+		expect(extractImageUrl('No image here')).toBeNull();
+		expect(extractImageUrl('')).toBeNull();
+	});
+
+	it('should handle multiple extensions', () => {
+		expect(extractImageUrl('https://x.com/a.jpeg')).toBe('https://x.com/a.jpeg');
+		expect(extractImageUrl('https://x.com/a.webp')).toBe('https://x.com/a.webp');
+		expect(extractImageUrl('https://x.com/a.gif')).toBe('https://x.com/a.gif');
 	});
 });

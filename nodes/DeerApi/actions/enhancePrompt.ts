@@ -195,7 +195,7 @@ export async function executeEnhancePrompt(
 		try {
 			const extra = JSON.parse(additionalOptions.extraBodyFields);
 			if (typeof extra === 'object' && extra !== null && !Array.isArray(extra)) {
-				const { model: _m, messages: _msg, ...safeExtra } = extra;
+				const { model: _m, messages: _msg, stream: _s, tools: _t, tool_choice: _tc, function_call: _fc, functions: _fn, ...safeExtra } = extra;
 				Object.assign(body, safeExtra);
 			}
 		} catch (_e) {

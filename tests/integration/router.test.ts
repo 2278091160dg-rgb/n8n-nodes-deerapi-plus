@@ -104,8 +104,9 @@ describe('router', () => {
 	it('should process multiple items', async () => {
 		mockContext.getInputData.mockReturnValue([{ json: {} }, { json: {} }, { json: {} }]);
 		mockContext.getNodeParameter
-			.mockReturnValueOnce('image')
-			.mockReturnValueOnce('generate');
+			.mockReturnValueOnce('image').mockReturnValueOnce('generate')
+			.mockReturnValueOnce('image').mockReturnValueOnce('generate')
+			.mockReturnValueOnce('image').mockReturnValueOnce('generate');
 
 		const result = await router.call(mockContext);
 
@@ -115,8 +116,8 @@ describe('router', () => {
 	it('should continue processing after error with continueOnFail', async () => {
 		mockContext.getInputData.mockReturnValue([{ json: {} }, { json: {} }]);
 		mockContext.getNodeParameter
-			.mockReturnValueOnce('image')
-			.mockReturnValueOnce('generate');
+			.mockReturnValueOnce('image').mockReturnValueOnce('generate')
+			.mockReturnValueOnce('image').mockReturnValueOnce('generate');
 		mockContext.continueOnFail.mockReturnValue(true);
 
 		(executeGenerateImage as jest.Mock)
@@ -133,12 +134,26 @@ describe('router', () => {
 	it('should stop on error without continueOnFail', async () => {
 		mockContext.getInputData.mockReturnValue([{ json: {} }, { json: {} }]);
 		mockContext.getNodeParameter
-			.mockReturnValueOnce('image')
-			.mockReturnValueOnce('generate');
+			.mockReturnValueOnce('image').mockReturnValueOnce('generate');
 		mockContext.continueOnFail.mockReturnValue(false);
 
 		(executeGenerateImage as jest.Mock).mockRejectedValueOnce(new Error('Failed'));
 
 		await expect(router.call(mockContext)).rejects.toThrow('Failed');
+	});
+
+	it('should read resource/operation per item (D-01 fix)', async () => {
+		mockContext.getInputData.mockReturnValue([{ json: {} }, { json: {} }]);
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('image').mockReturnValueOnce('generate')
+			.mockReturnValueOnce('prompt').mockReturnValueOnce('enhance');
+
+		const result = await router.call(mockContext);
+
+		expect(result[0]).toHaveLength(2);
+		expect(result[0][0].json.operation).toBe('generate');
+		expect(result[0][1].json.operation).toBe('enhance');
+		expect(executeGenerateImage).toHaveBeenCalledTimes(1);
+		expect(executeEnhancePrompt).toHaveBeenCalledTimes(1);
 	});
 });

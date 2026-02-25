@@ -12,7 +12,7 @@ export const generateImageFields: INodeProperties[] = [
 		type: 'options',
 		options: [
 			{ name: 'Gemini 2.5 Flash Image', value: 'gemini-2.5-flash-image' },
-			{ name: 'Gemini 3 Pro Preview', value: 'gemini-3-pro-preview' },
+			{ name: 'Gemini 3 Pro Image Preview', value: 'gemini-3-pro-image-preview' },
 			{ name: 'Custom Model', value: '__custom' },
 		],
 		default: 'gemini-2.5-flash-image',
@@ -216,7 +216,7 @@ export async function executeGenerateImage(
 		try {
 			const extra = JSON.parse(additionalOptions.extraBodyFields);
 			if (typeof extra === 'object' && extra !== null && !Array.isArray(extra)) {
-				const { model: _m, messages: _msg, ...safeExtra } = extra;
+				const { model: _m, messages: _msg, stream: _s, tools: _t, tool_choice: _tc, function_call: _fc, functions: _fn, ...safeExtra } = extra;
 				Object.assign(genBody, safeExtra);
 			}
 		} catch (_e) {
@@ -231,7 +231,7 @@ export async function executeGenerateImage(
 	const processingTime = Date.now() - startTime;
 
 	const rawContent = response?.choices?.[0]?.message?.content || '';
-	const imageUrlMatch = rawContent.match(/https?:\/\/[^\s"'<>\]]+\.(?:png|jpg|jpeg|webp|gif)[^\s"'<>\]]*/i);
+	const imageUrlMatch = rawContent.match(/https?:\/\/[^\s"'<>\]\)]+\.(?:png|jpg|jpeg|webp|gif)(?:\?[^\s"'<>\]\)]*)?/i);
 	const imageUrl = imageUrlMatch ? imageUrlMatch[0] : null;
 
 	const simplify = additionalOptions.simplify !== false;

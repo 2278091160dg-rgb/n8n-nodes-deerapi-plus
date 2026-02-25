@@ -1,0 +1,17 @@
+{
+  "node": "n8n-nodes-deerapi-plus.deerApiPlus",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["AI", "Marketing & Content"],
+  "resources": {
+    "primaryDocumentation": [
+      {
+        "url": "https://deerapi.com/docs"
+      }
+    ]
+  },
+  "alias": ["deerapi", "ai image", "ecommerce", "background removal", "virtual tryon", "prompt enhance"],
+  "subcategories": {
+    "AI": ["Image"]
+  }
+}

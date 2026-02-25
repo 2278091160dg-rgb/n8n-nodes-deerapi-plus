@@ -1,0 +1,59 @@
+{
+  "name": "n8n-nodes-deerapi-plus",
+  "version": "0.4.0",
+  "description": "n8n community node for DeerAPI — AI-powered e-commerce image generation, background removal, prompt enhancement, and virtual try-on",
+  "license": "MIT",
+  "homepage": "https://github.com/nicekate/n8n-nodes-deerapi-plus",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicekate/n8n-nodes-deerapi-plus.git"
+  },
+  "main": "dist/nodes/DeerApi/DeerApi.node.js",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "deerapi",
+    "ai",
+    "ecommerce",
+    "image-generation",
+    "background-removal",
+    "virtual-tryon"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/DeerApiPlusApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/DeerApi/DeerApi.node.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc && cp nodes/DeerApi/*.svg dist/nodes/DeerApi/",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .ts",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "n8n-workflow": "^1.30.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": ">=1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,88 +1,68 @@
 # n8n-nodes-deerapi-plus
 
-n8n community node for [DeerAPI](https://deerapi.com) — AI text generation, image generation, video generation, deep reasoning, vector embeddings, background removal, prompt enhancement, and virtual try-on.
+[DeerAPI](https://deerapi.com) 的 n8n 社区节点 — 支持 AI 文本生成、图片生成、视频生成、深度推理、向量嵌入、背景移除、提示词优化和虚拟试衣。
 
-Supports 20+ models (Gemini, GPT-4o, Claude, DeepSeek, Doubao, Sora) with dynamic model loading.
+支持 20+ 模型（Gemini、GPT-4o、Claude、DeepSeek、豆包、Sora），模型列表动态加载，始终保持最新。
 
-## Installation
+## 安装
 
-In your n8n instance:
+在 n8n 中：
 
-1. Go to **Settings** → **Community Nodes**
-2. Enter `n8n-nodes-deerapi-plus`
-3. Click **Install**
+1. 进入 **Settings** → **Community Nodes**
+2. 输入 `n8n-nodes-deerapi-plus`
+3. 点击 **Install**
 
-Or via CLI:
+或通过命令行：
 
 ```bash
 cd ~/.n8n/nodes
 npm install n8n-nodes-deerapi-plus
 ```
 
-## Credentials
+## 配置凭证
 
-1. Get an API key from [deerapi.com](https://deerapi.com)
-2. In n8n, go to **Credentials** → **New** → **DeerAPI Plus API**
-3. Enter your API key
+1. 在 [deerapi.com](https://deerapi.com) 获取 API Key
+2. 在 n8n 中进入 **Credentials** → **New** → **DeerAPI Plus API**
+3. 填入你的 API Key
 
-Note: This node uses credential type `deerApiPlusApi`. If you also have `n8n-nodes-deerapi` installed, you'll need separate credentials for each node (same API key works for both).
+## 功能列表
 
-## Operations
+| 资源 | 操作 | 说明 |
+|------|------|------|
+| 对话 | 生成 | AI 文本生成（Gemini、GPT-4o、Claude、DeepSeek） |
+| 图片 | 生成 | 文生图，支持宽高比和分辨率控制 |
+| 图片 | 移除背景 | 移除或替换图片背景（透明/白色/自定义） |
+| 提示词 | 优化 | 电商产品图提示词优化，输出结构化 JSON |
+| 虚拟试衣 | 生成 | AI 虚拟换装（人物 + 服装合成） |
+| 视频 | 创建 | 文生视频，支持异步轮询 |
+| 视频 | 查询 | 查询视频生成状态和下载链接 |
+| 视频 | 下载 | 下载生成的视频文件（video/mp4） |
+| 视频 | 列表 | 分页查看已生成的视频 |
+| 深度推理 | 生成 | 深度推理，可配置思考预算（1–10000 tokens） |
+| 向量嵌入 | 生成 | 文本转向量，用于语义搜索 |
 
-| Resource | Operation | Description |
-|----------|-----------|-------------|
-| Chat | Generate | Text generation with AI models (Gemini, GPT-4o, Claude, DeepSeek) |
-| Image | Generate | Text-to-image generation with aspect ratio and resolution control |
-| Image | Remove Background | Remove or replace image backgrounds (transparent/white/custom) |
-| Prompt | Enhance | E-commerce product image prompt optimization with structured JSON output |
-| Virtual Try-On | Generate | AI virtual clothing try-on (person + garment compositing) |
-| Video | Create | Generate videos from text prompts with async polling |
-| Video | Retrieve | Check video generation status and get download URL |
-| Video | Download | Download generated video as binary (video/mp4) |
-| Video | List | List your generated videos with pagination |
-| Thinking | Generate | Deep reasoning with configurable thinking budget (1–10000 tokens) |
-| Embeddings | Generate | Text-to-vector embedding generation for semantic search |
+## 特性
 
-## Features
+- **动态模型加载** — 从 DeerAPI `/v1/models` 接口获取模型列表，始终最新
+- **模式选择器** — 推荐/快速/高质量/经济/自定义五种模式，自动选择最优模型
+- **视觉理解** — 对话中可附加图片，支持多模态对话
+- **费用和速度标识** — 下拉列表中每个模型显示费用（💰）和速度（⚡）等级
+- **自定义模型** — 可手动输入列表中尚未收录的模型 ID
+- **宽高比预设** — 图片生成支持 1:1、3:2、16:9、9:16、4:5 等比例
+- **重试 + 熔断** — 指数退避重试（3 次）+ 熔断器保护
+- **错误脱敏** — API Key 不会出现在错误信息中
+- **AI Agent 兼容** — 可作为 n8n AI Agent 工作流的工具节点使用
+- **continueOnFail** — 批量处理时单条失败不影响整体执行
 
-- **Dynamic model loading** — Models fetched from DeerAPI `/v1/models` API, always up-to-date
-- **Mode selector** — Choose Recommended/Fast/Quality/Budget to auto-pick the best model, or Custom for manual selection
-- **Vision support** — Attach images to Chat via binary properties for multimodal conversations
-- **Cost/speed indicators** — Each model shows cost tier (💰) and speed tier (⚡) in the dropdown
-- **Custom model escape hatch** — Enter any model ID not yet in the list
-- **Aspect ratio presets** — 1:1, 3:2, 16:9, 9:16, 4:5, and more for image generation
-- **Retry + circuit breaker** — Exponential backoff (3 retries) with circuit breaker protection
-- **Error sanitization** — API keys never appear in error messages
-- **AI Agent compatible** — Works as a tool in n8n AI Agent workflows
-- **continueOnFail** — Batch processing continues even if individual items fail
-
-## Comparison with alternatives
-
-| Feature | DeerAPI Plus | n8n-nodes-deerapi (毛淞淮) | n8n-nodes-qiyu-deerapi (七鱼) |
-|---------|:-----------:|:-----------:|:-----------:|
-| Chat text generation | ✅ | ✅ | ✅ |
-| Image generation | ✅ | ✅ | ✅ |
-| Video generation | ✅ | ❌ | ❌ |
-| Deep reasoning (thinking) | ✅ | ❌ | ❌ |
-| Embeddings | ✅ | ❌ | ❌ |
-| Prompt enhancement | ✅ (e-commerce) | ❌ | ❌ |
-| Background removal | ✅ | ❌ | ❌ |
-| Virtual try-on | ✅ | ❌ | ❌ |
-| Dynamic model loading | ✅ | ❌ | ❌ |
-| Retry + circuit breaker | ✅ | ❌ | Partial |
-| Error sanitization | ✅ | ❌ | ❌ |
-| Test coverage | 189 tests | 0% | 0% |
-| AI Agent compatible | ✅ | ❌ | ❌ |
-
-## Development
+## 开发
 
 ```bash
 npm install
-npm test          # Run tests
-npm run build     # Compile TypeScript
-npm run lint      # ESLint check
+npm test          # 运行测试
+npm run build     # 编译 TypeScript
+npm run lint      # ESLint 检查
 ```
 
-## License
+## 许可证
 
 [MIT](LICENSE)

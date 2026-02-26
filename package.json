@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-deerapi-plus",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "n8n community node for DeerAPI — AI text/image/video generation, deep reasoning, embeddings, background removal, prompt enhancement, and virtual try-on. Supports 20+ models with dynamic loading.",
   "license": "MIT",
   "homepage": "https://github.com/nicekate/n8n-nodes-deerapi-plus",

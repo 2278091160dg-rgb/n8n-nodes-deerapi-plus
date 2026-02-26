@@ -1,0 +1,174 @@
+{
+  "name": "DeerAPI Plus v0.5.0 Smoke Test",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "start-1",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "generate",
+        "mode": "custom",
+        "model": "deepseek-chat",
+        "userPrompt": "Say hello in exactly 5 words.",
+        "additionalOptions": {
+          "systemPrompt": "You are a concise assistant.",
+          "temperature": 0.3,
+          "maxTokens": 100,
+          "simplify": true
+        }
+      },
+      "id": "chat-deepseek-1",
+      "name": "T1 Chat DeepSeek",
+      "type": "n8n-nodes-deerapi-plus.deerApiPlus",
+      "typeVersion": 1,
+      "position": [500, 60],
+      "credentials": { "deerApiPlusApi": { "id": "REPLACE", "name": "DeerAPI Plus" } }
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "generate",
+        "mode": "custom",
+        "model": "gemini-2.5-flash",
+        "userPrompt": "Describe this image in one sentence.",
+        "additionalOptions": {
+          "systemPrompt": "You are a vision assistant.",
+          "temperature": 0.3,
+          "maxTokens": 200,
+          "simplify": true,
+          "binaryPropertyName": "data",
+          "binarySourceMode": "current"
+        }
+      },
+      "id": "chat-vision-1",
+      "name": "T2 Chat Vision",
+      "type": "n8n-nodes-deerapi-plus.deerApiPlus",
+      "typeVersion": 1,
+      "position": [500, 260],
+      "credentials": { "deerApiPlusApi": { "id": "REPLACE", "name": "DeerAPI Plus" } },
+      "notes": "需要上游节点提供 binary data（图片）。可接 HTTP Request 下载图片或 Read Binary File 节点。"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "generate",
+        "mode": "recommended",
+        "userPrompt": "What is 2+2? Reply with just the number.",
+        "additionalOptions": { "temperature": 0, "maxTokens": 10, "simplify": true }
+      },
+      "id": "mode-rec-1",
+      "name": "T3 Mode Recommended",
+      "type": "n8n-nodes-deerapi-plus.deerApiPlus",
+      "typeVersion": 1,
+      "position": [500, 460],
+      "credentials": { "deerApiPlusApi": { "id": "REPLACE", "name": "DeerAPI Plus" } }
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "generate",
+        "mode": "fast",
+        "userPrompt": "List 3 colors.",
+        "additionalOptions": { "temperature": 0, "maxTokens": 30, "simplify": true }
+      },
+      "id": "mode-fast-1",
+      "name": "T4 Mode Fast",
+      "type": "n8n-nodes-deerapi-plus.deerApiPlus",
+      "typeVersion": 1,
+      "position": [500, 660],
+      "credentials": { "deerApiPlusApi": { "id": "REPLACE", "name": "DeerAPI Plus" } }
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "generate",
+        "mode": "quality",
+        "userPrompt": "Explain quantum entanglement in one sentence.",
+        "additionalOptions": { "temperature": 0.5, "maxTokens": 200, "simplify": true }
+      },
+      "id": "mode-quality-1",
+      "name": "T5 Mode Quality",
+      "type": "n8n-nodes-deerapi-plus.deerApiPlus",
+      "typeVersion": 1,
+      "position": [500, 860],
+      "credentials": { "deerApiPlusApi": { "id": "REPLACE", "name": "DeerAPI Plus" } }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "generate",
+        "model": "gpt-image-1",
+        "prompt": "A cute cartoon deer wearing a top hat, white background, flat illustration style",
+        "enhancePrompt": false,
+        "additionalOptions": { "outputType": "url" }
+      },
+      "id": "image-gen-1",
+      "name": "T6 Image Generate",
+      "type": "n8n-nodes-deerapi-plus.deerApiPlus",
+      "typeVersion": 1,
+      "position": [500, 1060],
+      "credentials": { "deerApiPlusApi": { "id": "REPLACE", "name": "DeerAPI Plus" } }
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "generate",
+        "mode": "custom",
+        "model": "nonexistent-model-12345",
+        "userPrompt": "This should fail gracefully.",
+        "additionalOptions": { "simplify": true }
+      },
+      "id": "error-model-1",
+      "name": "T7 Error Invalid Model",
+      "type": "n8n-nodes-deerapi-plus.deerApiPlus",
+      "typeVersion": 1,
+      "position": [500, 1260],
+      "credentials": { "deerApiPlusApi": { "id": "REPLACE", "name": "DeerAPI Plus" } },
+      "continueOnFail": true,
+      "notes": "预期失败：无效模型名应返回友好错误信息，不应崩溃工作流。"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "generate",
+        "model": "gpt-image-1",
+        "prompt": "",
+        "enhancePrompt": false,
+        "additionalOptions": {}
+      },
+      "id": "error-empty-1",
+      "name": "T8 Error Empty Prompt",
+      "type": "n8n-nodes-deerapi-plus.deerApiPlus",
+      "typeVersion": 1,
+      "position": [500, 1460],
+      "credentials": { "deerApiPlusApi": { "id": "REPLACE", "name": "DeerAPI Plus" } },
+      "continueOnFail": true,
+      "notes": "预期失败：空 prompt 应返回友好错误信息。"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [[
+        { "node": "T1 Chat DeepSeek", "type": "main", "index": 0 },
+        { "node": "T3 Mode Recommended", "type": "main", "index": 0 },
+        { "node": "T4 Mode Fast", "type": "main", "index": 0 },
+        { "node": "T5 Mode Quality", "type": "main", "index": 0 },
+        { "node": "T6 Image Generate", "type": "main", "index": 0 },
+        { "node": "T7 Error Invalid Model", "type": "main", "index": 0 },
+        { "node": "T8 Error Empty Prompt", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "deerapi-smoke-test",
+    "notes": "T2 Chat Vision 需要手动连接上游图片源节点。其余节点从 Start 并行 fan-out。"
+  }
+}

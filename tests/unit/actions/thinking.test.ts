@@ -216,4 +216,24 @@ describe('actions/thinking', () => {
 		expect(callBody.messages[0].content).toBe('You are a math expert.');
 		expect(callBody.max_tokens).toBe(4096);
 	});
+
+	it('should route Claude thinking models to Anthropic endpoint', async () => {
+		mockContext.getNodeParameter
+			.mockReturnValueOnce('claude-opus-4-5-thinking')
+			.mockReturnValueOnce('Analyze this')
+			.mockReturnValueOnce(8000)
+			.mockReturnValueOnce({ systemPrompt: 'Think deeply.' });
+
+		(deerApiRequest as jest.Mock).mockResolvedValueOnce({
+			choices: [{ message: { content: 'Analysis', reasoning_content: 'Step by step...' }, finish_reason: 'stop' }],
+		});
+
+		await executeThinking.call(mockContext, 0);
+
+		const call = (deerApiRequest as jest.Mock).mock.calls[0][0];
+		expect(call.endpoint).toBe('/v1/messages');
+		expect(call.body.system).toBe('Think deeply.');
+		expect(call.body.messages).toEqual([{ role: 'user', content: 'Analyze this' }]);
+		expect(call.body.thinking).toEqual({ type: 'enabled', budget_tokens: 8000 });
+	});
 });

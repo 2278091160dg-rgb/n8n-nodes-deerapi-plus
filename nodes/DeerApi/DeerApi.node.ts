@@ -105,7 +105,7 @@ export class DeerApi implements INodeType {
 		icon: 'file:deerapi.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
 		description: 'AI-powered chat, thinking, image/video generation, embeddings, background removal, prompt enhancement, and virtual try-on',
 		defaults: { name: 'DeerAPI Plus' },
 		inputs: ['main'],

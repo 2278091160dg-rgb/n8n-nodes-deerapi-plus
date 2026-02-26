@@ -46,6 +46,8 @@ Note: This node uses credential type `deerApiPlusApi`. If you also have `n8n-nod
 ## Features
 
 - **Dynamic model loading** — Models fetched from DeerAPI `/v1/models` API, always up-to-date
+- **Mode selector** — Choose Recommended/Fast/Quality/Budget to auto-pick the best model, or Custom for manual selection
+- **Vision support** — Attach images to Chat via binary properties for multimodal conversations
 - **Cost/speed indicators** — Each model shows cost tier (💰) and speed tier (⚡) in the dropdown
 - **Custom model escape hatch** — Enter any model ID not yet in the list
 - **Aspect ratio presets** — 1:1, 3:2, 16:9, 9:16, 4:5, and more for image generation
@@ -69,7 +71,7 @@ Note: This node uses credential type `deerApiPlusApi`. If you also have `n8n-nod
 | Dynamic model loading | ✅ | ❌ | ❌ |
 | Retry + circuit breaker | ✅ | ❌ | Partial |
 | Error sanitization | ✅ | ❌ | ❌ |
-| Test coverage | 174 tests | 0% | 0% |
+| Test coverage | 189 tests | 0% | 0% |
 | AI Agent compatible | ✅ | ❌ | ❌ |
 
 ## Development

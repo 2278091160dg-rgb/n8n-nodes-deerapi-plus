@@ -16,6 +16,50 @@ export interface ModelInfo {
  * Fallback model list — used when /v1/models API is unavailable.
  * Source: DeerAPI模型配置规范 v1.1 (2026-02-25)
  */
+/**
+ * Mode → default model mapping per capability.
+ * Used by the mode selector to auto-pick a model.
+ */
+export const MODE_DEFAULTS: Record<string, Record<ModelCapability, string>> = {
+	recommended: {
+		text: 'gemini-2.5-flash',
+		image: 'gemini-2.5-flash-image',
+		video: 'sora-2-all',
+		embedding: 'text-embedding-3-small',
+		thinking: 'gemini-3-flash-preview-thinking',
+	},
+	fast: {
+		text: 'gemini-2.5-flash',
+		image: 'gemini-2.5-flash-image',
+		video: 'veo-3-fast',
+		embedding: 'text-embedding-3-small',
+		thinking: 'gemini-3-flash-preview-thinking',
+	},
+	quality: {
+		text: 'claude-opus-4-5',
+		image: 'gemini-3-pro-image-preview',
+		video: 'sora-2-pro-all',
+		embedding: 'text-embedding-3-large',
+		thinking: 'claude-opus-4-5-thinking',
+	},
+	budget: {
+		text: 'deepseek-chat',
+		image: 'gemini-2.5-flash-image',
+		video: 'veo-3-fast',
+		embedding: 'text-embedding-3-small',
+		thinking: 'gemini-3-flash-preview-thinking',
+	},
+};
+
+/**
+ * Resolve model ID from mode + capability.
+ * Returns undefined for 'custom' mode (user picks manually).
+ */
+export function resolveModelFromMode(mode: string, capability: ModelCapability): string | undefined {
+	if (mode === 'custom') return undefined;
+	return MODE_DEFAULTS[mode]?.[capability];
+}
+
 export const FALLBACK_MODELS: ModelInfo[] = [
 	// Text models
 	{ id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', capabilities: ['text'], costTier: 'low', speedTier: 'fast' },

@@ -5,6 +5,7 @@ import {
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
 import { safeExtractChatContent } from '../../../transport/response';
+import { buildRequestForModel } from '../../../transport/endpoint-map';
 
 export const thinkingFields: INodeProperties[] = [
 	{
@@ -127,7 +128,7 @@ export async function executeThinking(
 	const maxTokens = additionalOptions.maxTokens ?? 8192;
 
 	const startTime = Date.now();
-	const body: any = {
+	const { endpoint, body } = buildRequestForModel({
 		model,
 		messages: [
 			{ role: 'system', content: systemPrompt },
@@ -139,7 +140,7 @@ export async function executeThinking(
 			type: 'enabled',
 			budget_tokens: budgetTokens,
 		},
-	};
+	});
 
 	if (additionalOptions.extraBodyFields) {
 		try {
@@ -155,7 +156,7 @@ export async function executeThinking(
 
 	const response = await deerApiRequest.call(this, {
 		method: 'POST',
-		endpoint: '/v1/chat/completions',
+		endpoint,
 		body,
 		timeout: 120000,
 	});

@@ -5,6 +5,7 @@ import {
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
 import { safeExtractChatContent, extractImageUrl } from '../../../transport/response';
+import { resolveEndpoint } from '../../../transport/endpoint-map';
 
 export const removeBackgroundFields: INodeProperties[] = [
 	{
@@ -208,9 +209,10 @@ export async function executeRemoveBackground(
 			// Invalid JSON — silently ignore
 		}
 	}
+	const { path: bgEndpoint } = resolveEndpoint(model);
 	const response = await deerApiRequest.call(this, {
 		method: 'POST',
-		endpoint: '/v1/chat/completions',
+		endpoint: bgEndpoint,
 		body,
 	});
 	const processingTime = Date.now() - startTime;

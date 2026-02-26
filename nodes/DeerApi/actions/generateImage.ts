@@ -5,6 +5,7 @@ import {
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
 import { safeExtractChatContent, extractImageUrl } from '../../../transport/response';
+import { buildRequestForModel, resolveEndpoint } from '../../../transport/endpoint-map';
 
 export const generateImageFields: INodeProperties[] = [
 	{
@@ -242,18 +243,19 @@ export async function executeGenerateImage(
 			const temperature = additionalOptions.temperature ?? 0.7;
 			const maxTokens = additionalOptions.maxTokens ?? 2048;
 			const systemPrompt = additionalOptions.systemPromptOverride || ENHANCE_SYSTEM_PROMPT;
+			const { endpoint: enhanceEndpoint, body: enhanceBody } = buildRequestForModel({
+				model: enhanceModel,
+				messages: [
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: prompt },
+				],
+				max_tokens: maxTokens,
+				temperature,
+			});
 			const enhanceResponse = await deerApiRequest.call(this, {
 				method: 'POST',
-				endpoint: '/v1/chat/completions',
-				body: {
-					model: enhanceModel,
-					messages: [
-						{ role: 'system', content: systemPrompt },
-						{ role: 'user', content: prompt },
-					],
-					max_tokens: maxTokens,
-					temperature,
-				} as any,
+				endpoint: enhanceEndpoint,
+				body: enhanceBody,
 			});
 			const enhanced = safeExtractChatContent(enhanceResponse).content;
 			if (enhanced) {
@@ -292,9 +294,10 @@ export async function executeGenerateImage(
 			// Invalid JSON — silently ignore
 		}
 	}
+	const { path: genEndpoint } = resolveEndpoint(model);
 	const response = await deerApiRequest.call(this, {
 		method: 'POST',
-		endpoint: '/v1/chat/completions',
+		endpoint: genEndpoint,
 		body: genBody,
 	});
 	const processingTime = Date.now() - startTime;

@@ -5,6 +5,7 @@ import {
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
 import { safeExtractChatContent, extractImageUrl } from '../../../transport/response';
+import { buildRequestForModel, resolveEndpoint } from '../../../transport/endpoint-map';
 
 export const virtualTryOnFields: INodeProperties[] = [
 	{
@@ -168,18 +169,19 @@ export async function executeVirtualTryOn(
 			const temperature = additionalOptions.temperature ?? 0.7;
 			const maxTokens = additionalOptions.maxTokens ?? 2048;
 			const systemPrompt = additionalOptions.systemPromptOverride || TRYON_ENHANCE_SYSTEM;
+			const { endpoint: enhanceEndpoint, body: enhanceBody } = buildRequestForModel({
+				model: enhanceModel,
+				messages: [
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: tryOnPrompt },
+				],
+				max_tokens: maxTokens,
+				temperature,
+			});
 			const enhanceResponse = await deerApiRequest.call(this, {
 				method: 'POST',
-				endpoint: '/v1/chat/completions',
-				body: {
-					model: enhanceModel,
-					messages: [
-						{ role: 'system', content: systemPrompt },
-						{ role: 'user', content: tryOnPrompt },
-					],
-					max_tokens: maxTokens,
-					temperature,
-				} as any,
+				endpoint: enhanceEndpoint,
+				body: enhanceBody,
 			});
 			const enhanced = safeExtractChatContent(enhanceResponse).content;
 			if (enhanced) {
@@ -215,9 +217,10 @@ export async function executeVirtualTryOn(
 			// Invalid JSON — silently ignore
 		}
 	}
+	const { path: tryOnEndpoint } = resolveEndpoint(model);
 	const response = await deerApiRequest.call(this, {
 		method: 'POST',
-		endpoint: '/v1/chat/completions',
+		endpoint: tryOnEndpoint,
 		body: genBody,
 	});
 	const processingTime = Date.now() - startTime;

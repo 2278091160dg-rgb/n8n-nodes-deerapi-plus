@@ -5,6 +5,7 @@ import {
 } from 'n8n-workflow';
 import { deerApiRequest } from '../../../transport/request';
 import { safeExtractChatContent } from '../../../transport/response';
+import { buildRequestForModel } from '../../../transport/endpoint-map';
 
 const SYSTEM_PROMPT = `You are an expert e-commerce product image prompt engineer with deep knowledge of commercial photography, visual merchandising, and AI image generation.
 
@@ -179,7 +180,7 @@ export async function executeEnhancePrompt(
 	const temperature = additionalOptions.temperature ?? 0.7;
 	const maxTokens = additionalOptions.maxTokens ?? 2048;
 	const systemPrompt = additionalOptions.systemPromptOverride || SYSTEM_PROMPT;
-	const body: any = {
+	const { endpoint, body } = buildRequestForModel({
 		model,
 		messages: [
 			{ role: 'system', content: systemPrompt },
@@ -187,7 +188,7 @@ export async function executeEnhancePrompt(
 		],
 		max_tokens: maxTokens,
 		temperature,
-	};
+	});
 	if (additionalOptions.extraBodyFields) {
 		try {
 			const extra = JSON.parse(additionalOptions.extraBodyFields);
@@ -201,7 +202,7 @@ export async function executeEnhancePrompt(
 	}
 	const response = await deerApiRequest.call(this, {
 		method: 'POST',
-		endpoint: '/v1/chat/completions',
+		endpoint,
 		body,
 	});
 	const processingTime = Date.now() - startTime;

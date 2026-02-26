@@ -43,3 +43,35 @@ export function resolveEndpoint(modelId: string): EndpointConfig {
 	}
 	return DEFAULT_ENDPOINT;
 }
+
+/**
+ * Build a format-aware request body and resolve the endpoint for a chat-style API call.
+ * Handles OpenAI vs Anthropic message format differences:
+ * - OpenAI: system message in messages array
+ * - Anthropic: system as top-level field, not in messages
+ */
+export function buildRequestForModel(params: {
+	model: string;
+	messages: Array<{ role: string; content: any }>;
+	[key: string]: any;
+}): { endpoint: string; body: Record<string, any> } {
+	const { path, format } = resolveEndpoint(params.model);
+
+	if (format === 'anthropic') {
+		const systemMessages = params.messages.filter((m) => m.role === 'system');
+		const nonSystemMessages = params.messages.filter((m) => m.role !== 'system');
+		const systemContent = systemMessages.map((m) => m.content).join('\n') || undefined;
+
+		const { messages: _, ...rest } = params;
+		return {
+			endpoint: path,
+			body: {
+				...rest,
+				...(systemContent ? { system: systemContent } : {}),
+				messages: nonSystemMessages,
+			},
+		};
+	}
+
+	return { endpoint: path, body: params };
+}
